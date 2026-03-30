@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NL NEXUS — CIE Automotive · Asia-Puebla 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700;800&family=Barlow:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --o:#E8590A;--o2:#F07030;--r:#C0001A;
+  --bg:#060810;--bg2:#0A0D18;--bg3:#0F1320;
+  --pan:rgba(255,255,255,0.03);--pan2:rgba(255,255,255,0.06);
+  --bdr:rgba(255,255,255,0.07);--bdr-o:rgba(232,89,10,0.35);
+  --txt:#F2F4FF;--dim:rgba(242,244,255,0.4);--mid:rgba(242,244,255,0.72);
+  --green:#00D68F;--yellow:#FFB627;--red:#FF2D47;--blue:#3B8EFF;--purple:#A78BFA;
+}
+html,body{width:100%;height:100%;background:var(--bg);color:var(--txt);font-family:'Barlow',sans-serif;overflow:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");opacity:.028;pointer-events:none;z-index:900}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(232,89,10,0.01) 3px,rgba(232,89,10,0.01) 4px);pointer-events:none;z-index:899}
+
+/* LOADER */
+#ldr{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:24px;transition:opacity 1s ease}
+#ldr.out{opacity:0;pointer-events:none}
+.ldr-ring{width:56px;height:56px;border:3px solid var(--o);border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ldr-title{font-family:'Barlow Condensed',sans-serif;font-size:34px;font-weight:700;letter-spacing:4px}
+.ldr-title b{color:var(--o)}
+.ldr-track{width:240px;height:2px;background:var(--bdr);border-radius:2px;overflow:hidden}
+.ldr-fill{height:100%;width:0;background:linear-gradient(90deg,var(--o),var(--o2));animation:lf 2s ease forwards}
+@keyframes lf{to{width:100%}}
+.ldr-sub{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--dim);animation:bl 1.2s ease-in-out infinite}
+@keyframes bl{0%,100%{opacity:.3}50%{opacity:1}}
+
+/* HEADER */
+#hdr{position:fixed;top:0;left:0;right:0;height:66px;display:flex;align-items:center;justify-content:space-between;padding:0 36px;background:linear-gradient(180deg,rgba(6,8,16,.98),rgba(6,8,16,.65));border-bottom:1px solid var(--bdr);z-index:200}
+.hl{display:flex;align-items:center;gap:20px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-icon{width:34px;height:34px}
+.brand-name{font-family:'Barlow Condensed',sans-serif;font-size:21px;font-weight:700;letter-spacing:1px;line-height:1.1}
+.brand-name b{color:var(--o)}
+.brand-route{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--dim)}
+.hdiv{width:1px;height:30px;background:var(--bdr)}
+.nx-badge{display:flex;align-items:center;gap:8px;background:var(--pan2);border:1px solid var(--bdr-o);border-radius:5px;padding:5px 13px}
+.nx-dot{width:7px;height:7px;border-radius:50%;background:var(--o);box-shadow:0 0 10px var(--o);animation:pd 2s ease-in-out infinite}
+@keyframes pd{0%,100%{box-shadow:0 0 8px var(--o)}50%{box-shadow:0 0 18px var(--o)}}
+.nx-name{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;letter-spacing:3px}
+.hlbl{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);font-weight:500}
+.hr{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+#clk{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:600;letter-spacing:2px}
+#dte{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--dim)}
+
+/* PROGRESS */
+#pt{position:fixed;top:66px;left:0;right:0;height:2px;background:rgba(255,255,255,0.05);z-index:200}
+#pb{height:100%;width:0%;background:linear-gradient(90deg,var(--o),var(--o2));box-shadow:0 0 8px var(--o);transition:width .1s linear}
+
+/* SLIDE SYSTEM */
+#stage{position:fixed;inset:68px 0 40px 0;overflow:hidden}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:24px 44px 16px;opacity:0;transform:translateX(80px) scale(.98);transition:opacity .7s cubic-bezier(.4,0,.2,1),transform .7s cubic-bezier(.4,0,.2,1);pointer-events:none}
+.slide.active{opacity:1;transform:none;pointer-events:all}
+.slide.exit{opacity:0;transform:translateX(-80px) scale(.98)}
+.stag{position:absolute;top:16px;left:44px;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--o);font-weight:600;display:flex;align-items:center;gap:8px}
+.stag::before{content:'';display:block;width:20px;height:1px;background:var(--o)}
+.snum{position:absolute;top:16px;right:44px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim);letter-spacing:2px}
+
+/* DOTS */
+#dots{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:9px;z-index:200}
+.dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.18);transition:all .4s;cursor:pointer}
+.dot.on{background:var(--o);box-shadow:0 0 8px var(--o);transform:scale(1.5)}
+
+/* CORNERS */
+.crn{position:fixed;width:28px;height:28px;z-index:50;opacity:.2}
+.c-tl{top:80px;left:14px;border-top:1px solid var(--o);border-left:1px solid var(--o)}
+.c-tr{top:80px;right:14px;border-top:1px solid var(--o);border-right:1px solid var(--o)}
+.c-bl{bottom:8px;left:14px;border-bottom:1px solid var(--o);border-left:1px solid var(--o)}
+.c-br{bottom:8px;right:14px;border-bottom:1px solid var(--o);border-right:1px solid var(--o)}
+
+/* SLIDE TITLE */
+.stitle{font-family:'Barlow Condensed',sans-serif;font-size:34px;font-weight:800;letter-spacing:3px;color:var(--txt);margin-bottom:18px;width:100%;display:flex;align-items:center;gap:14px}
+.stitle .rb{font-size:14px;font-weight:700;letter-spacing:2px;padding:4px 12px;background:rgba(232,89,10,.12);border:1px solid var(--bdr-o);border-radius:4px;color:var(--o)}
+.stitle::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--bdr-o),transparent)}
+
+/* TABLE */
+.twrap{width:100%;max-width:1520px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead tr{background:rgba(232,89,10,.09);border-bottom:1px solid var(--bdr-o)}
+thead th{padding:10px 12px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--o);font-weight:700}
+tbody tr{border-bottom:1px solid var(--bdr);transition:background .2s}
+tbody tr:nth-child(even){background:rgba(255,255,255,.016)}
+tbody tr:hover{background:rgba(232,89,10,.06)}
+tbody td{padding:11px 12px;color:var(--mid);font-size:13px}
+tbody td:nth-child(2){color:var(--txt);font-weight:500}
+.sem{width:10px;min-width:10px;padding:0 6px !important}
+.sdot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.s-red{background:var(--red);box-shadow:0 0 6px var(--red)}
+.s-yel{background:var(--yellow);box-shadow:0 0 6px var(--yellow)}
+.s-none{background:rgba(255,255,255,.1)}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+.pdot{width:4px;height:4px;border-radius:50%;background:currentColor}
+.p-tr{background:rgba(59,142,255,.12);color:var(--blue);border:1px solid rgba(59,142,255,.3)}
+.p-no{background:rgba(255,182,39,.12);color:var(--yellow);border:1px solid rgba(255,182,39,.3)}
+.p-re{background:rgba(0,214,143,.12);color:var(--green);border:1px solid rgba(0,214,143,.3)}
+.p-ca{background:rgba(255,255,255,.05);color:rgba(255,255,255,.3);border:1px solid rgba(255,255,255,.1)}
+.p-pe{background:rgba(255,140,0,.12);color:#FF8C00;border:1px solid rgba(255,140,0,.3)}
+.p-rv{background:rgba(167,139,250,.12);color:var(--purple);border:1px solid rgba(167,139,250,.3)}
+.dt{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mid)}
+.dt.hl{color:var(--o2)}
+.note{font-size:11px;color:var(--dim);max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dev-cell{font-size:10px;color:var(--yellow);max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* KPI GRID */
+.kgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;width:100%;max-width:1500px}
+.kcard{background:var(--pan);border:1px solid var(--bdr);border-radius:11px;padding:24px 20px;position:relative;overflow:hidden}
+.kcard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--o),transparent)}
+.kcard.gr::before{background:linear-gradient(90deg,var(--green),transparent)}
+.kcard.bl::before{background:linear-gradient(90deg,var(--blue),transparent)}
+.kcard.rd::before{background:linear-gradient(90deg,var(--red),transparent)}
+.kcard.yl::before{background:linear-gradient(90deg,var(--yellow),transparent)}
+.klbl{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);font-weight:600;margin-bottom:12px}
+.kval{font-family:'Barlow Condensed',sans-serif;font-size:58px;line-height:1;font-weight:800;letter-spacing:1px;color:var(--txt);margin-bottom:6px}
+.knote{font-size:11px;color:var(--dim)}
+.kbar{margin-top:12px;height:2px;background:var(--bdr);border-radius:2px;overflow:hidden}
+.kbf{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--o),var(--o2))}
+.kbf.gr{background:linear-gradient(90deg,var(--green),#00a870)}
+.kbf.bl{background:linear-gradient(90deg,var(--blue),#2270d4)}
+.kbf.rd{background:linear-gradient(90deg,var(--red),#c0001a)}
+.kbf.yl{background:linear-gradient(90deg,var(--yellow),#cc9200)}
+
+/* COVER */
+.cvwrap{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
+.cvlogos{display:flex;align-items:center;gap:28px}
+.cv-cie{font-family:'Barlow Condensed',sans-serif;font-size:48px;font-weight:800;letter-spacing:2px}
+.cv-cie b{color:var(--o)}
+.cv-div{width:1px;height:56px;background:var(--bdr)}
+.cv-nx{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;letter-spacing:5px;color:var(--dim)}
+.cv-head{font-family:'Barlow Condensed',sans-serif;font-size:92px;line-height:.88;font-weight:800;letter-spacing:3px;color:var(--txt);text-shadow:0 0 80px rgba(232,89,10,.2)}
+.cv-head span{color:var(--o)}
+.cv-sub{font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--dim);margin-top:6px}
+.cv-line{width:100px;height:2px;background:linear-gradient(90deg,transparent,var(--o),transparent);margin-top:2px}
+.cvstats{display:flex;gap:44px;margin-top:12px}
+.cvs{display:flex;flex-direction:column;gap:3px;align-items:center}
+.cvs-v{font-family:'Barlow Condensed',sans-serif;font-size:40px;font-weight:800;color:var(--o)}
+.cvs-l{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--dim)}
+
+/* ANNOUNCE */
+.awrap{max-width:840px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:18px}
+.atag{display:inline-flex;align-items:center;gap:10px;padding:6px 20px;background:rgba(192,0,26,.12);border:1px solid rgba(192,0,26,.4);border-radius:4px;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--r);font-weight:700}
+.atag::before,.atag::after{content:'';display:block;width:5px;height:5px;border-radius:50%;background:var(--r);box-shadow:0 0 5px var(--r)}
+.atitle{font-family:'Barlow Condensed',sans-serif;font-size:80px;line-height:.9;font-weight:800;letter-spacing:2px;color:var(--txt)}
+.atitle em{color:var(--o);font-style:normal}
+.abody{font-size:17px;color:var(--mid);line-height:1.65;font-weight:300;max-width:640px}
+.apills{display:flex;gap:22px;align-items:center;margin-top:4px}
+.apill{display:flex;flex-direction:column;gap:3px;align-items:center}
+.ap-l{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--dim)}
+.ap-v{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:600;color:var(--o)}
+.asep{width:1px;height:40px;background:var(--bdr)}
+
+/* STATUS TABS */
+.stabs{display:flex;gap:8px;margin-bottom:14px;width:100%;max-width:1520px;flex-wrap:wrap}
+.stab{padding:6px 16px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border-radius:4px;border:1px solid var(--bdr);color:var(--dim);background:var(--pan);cursor:pointer;transition:all .25s}
+.stab.on{background:rgba(232,89,10,.14);border-color:var(--bdr-o);color:var(--o)}
+
+/* ANIMATIONS */
+@keyframes fup{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.slide.active .kcard,.slide.active .atag,.slide.active .atitle,.slide.active .abody,.slide.active .apills,.slide.active .cvlogos,.slide.active .cv-head,.slide.active .cv-sub,.slide.active .cv-line,.slide.active .cvstats,.slide.active .stabs,.slide.active .stitle{animation:fup .6s ease forwards;opacity:0}
+.slide.active .kcard:nth-child(1){animation-delay:.04s}
+.slide.active .kcard:nth-child(2){animation-delay:.1s}
+.slide.active .kcard:nth-child(3){animation-delay:.16s}
+.slide.active .kcard:nth-child(4){animation-delay:.22s}
+.slide.active .kcard:nth-child(5){animation-delay:.28s}
+.slide.active .atag{animation-delay:.08s}
+.slide.active .atitle{animation-delay:.18s}
+.slide.active .abody{animation-delay:.3s}
+.slide.active .apills{animation-delay:.42s}
+.slide.active .cvlogos{animation-delay:.05s}
+.slide.active .cv-head{animation-delay:.15s}
+.slide.active .cv-sub{animation-delay:.26s}
+.slide.active .cv-line{animation-delay:.34s}
+.slide.active .cvstats{animation-delay:.44s}
+.slide.active .stabs{animation-delay:.06s}
+.slide.active .stitle{animation-delay:.14s}
+.slide.active tbody tr{animation:fup .5s ease forwards;opacity:0}
+.slide.active tbody tr:nth-child(1){animation-delay:.18s}
+.slide.active tbody tr:nth-child(2){animation-delay:.23s}
+.slide.active tbody tr:nth-child(3){animation-delay:.28s}
+.slide.active tbody tr:nth-child(4){animation-delay:.33s}
+.slide.active tbody tr:nth-child(5){animation-delay:.38s}
+.slide.active tbody tr:nth-child(6){animation-delay:.43s}
+.slide.active tbody tr:nth-child(7){animation-delay:.48s}
+.slide.active tbody tr:nth-child(8){animation-delay:.53s}
+.slide.active tbody tr:nth-child(9){animation-delay:.58s}
+.slide.active tbody tr:nth-child(10){animation-delay:.63s}
+</style>
+</head>
+<body>
+
+<div id="ldr">
+  <div class="ldr-ring"></div>
+  <div class="ldr-title"><b>CIE</b> Automotive · NL Nexus</div>
+  <div class="ldr-track"><div class="ldr-fill"></div></div>
+  <div class="ldr-sub">Cargando dashboard operativo Asia–Puebla 2026</div>
+</div>
+
+<div class="crn c-tl"></div><div class="crn c-tr"></div>
+<div class="crn c-bl"></div><div class="crn c-br"></div>
+
+<div id="hdr">
+  <div class="hl">
+    <div class="brand">
+      <svg class="brand-icon" viewBox="0 0 34 34">
+        <circle cx="17" cy="17" r="15" fill="none" stroke="#E8590A" stroke-width="2.5"/>
+        <path d="M9 17 A8 8 0 0 1 25 17" fill="none" stroke="#E8590A" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <div class="brand-name"><b>CIE</b> Automotive</div>
+        <div class="brand-route">Asia · Puebla 2026</div>
+      </div>
+    </div>
+    <div class="hdiv"></div>
+    <div class="nx-badge"><div class="nx-dot"></div><div class="nx-name">NL NEXUS</div></div>
+    <div class="hdiv"></div>
+    <span class="hlbl">Dashboard Operativo · Seguimiento de Embarques</span>
+  </div>
+  <div class="hr">
+    <div id="clk">00:00:00</div>
+    <div id="dte">—</div>
+  </div>
+</div>
+
+<div id="pt"><div id="pb"></div></div>
+
+<div id="stage">
+
+  <!-- SLIDE 0: PORTADA -->
+  <div class="slide active" id="s0">
+    <div class="stag">Sistema de monitoreo</div>
+    <div class="snum">01 / 05</div>
+    <div class="cvwrap">
+      <div class="cvlogos">
+        <div class="cv-cie"><b>CIE</b> Automotive</div>
+        <div class="cv-div"></div>
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <div class="cv-nx">NL NEXUS</div>
+          <div style="font-size:10px;letter-spacing:3px;color:var(--dim);text-transform:uppercase">Logistics</div>
+        </div>
+      </div>
+      <div class="cv-head">TRÁFICO<br><span>ASIA</span>–MX</div>
+      <div class="cv-sub">Seguimiento de embarques · Actualización diaria</div>
+      <div class="cv-line"></div>
+      <div class="cvstats" id="cvstats"></div>
+    </div>
+  </div>
+
+  <!-- SLIDE 1: KPIs -->
+  <div class="slide" id="s1">
+    <div class="stag">Indicadores clave</div>
+    <div class="snum">02 / 05</div>
+    <div class="kgrid" id="kgrid"></div>
+  </div>
+
+  <!-- SLIDE 2: TABLA EMBARQUES activos con filtro por estatus -->
+  <div class="slide" id="s2">
+    <div class="stag">Embarques activos</div>
+    <div class="snum">03 / 05</div>
+    <div class="twrap">
+      <div class="stabs" id="stabs"></div>
+      <div class="stitle"><span id="tbl-title">Todos los embarques</span><span class="rb" id="tbl-badge">38 registros</span></div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:10px"></th>
+            <th>Proveedor</th>
+            <th>Referencia</th>
+            <th>Estatus</th>
+            <th>Pick Up</th>
+            <th>ETD</th>
+            <th>ATD</th>
+            <th>ETA</th>
+            <th>ATA</th>
+            <th>Desviación</th>
+            <th>Notas</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: TABLA — solo con ETA próximas -->
+  <div class="slide" id="s3">
+    <div class="stag">Próximas llegadas</div>
+    <div class="snum">04 / 05</div>
+    <div class="twrap">
+      <div class="stitle">Embarques con <span class="rb">ETA confirmada</span></div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:10px"></th>
+            <th>Proveedor</th>
+            <th>Referencia</th>
+            <th>Estatus</th>
+            <th>ETD</th>
+            <th>ATD</th>
+            <th>ETA</th>
+            <th>Desviación</th>
+            <th>Notas</th>
+          </tr>
+        </thead>
+        <tbody id="eta-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: COMUNICADO -->
+  <div class="slide" id="s4">
+    <div class="stag">Comunicado operativo</div>
+    <div class="snum">05 / 05</div>
+    <div class="awrap">
+      <div class="atag">Alerta operativa · NL Nexus</div>
+      <div class="atitle">Seguimiento<br><em>Asia</em>–Puebla</div>
+      <div class="abody">Monitoreo activo de embarques en rutas China–México vía NEXUS Logistics. Se registran <strong id="a-desv" style="color:var(--yellow)">—</strong> embarques con desviación activa. Todos los movimientos son notificados al equipo CIE Automotive de forma inmediata.</div>
+      <div class="apills">
+        <div class="apill"><div class="ap-l">Total activos</div><div class="ap-v" id="a-total">—</div></div>
+        <div class="asep"></div>
+        <div class="apill"><div class="ap-l">En tránsito</div><div class="ap-v" id="a-transit">—</div></div>
+        <div class="asep"></div>
+        <div class="apill"><div class="ap-l">Con desviación</div><div class="ap-v" id="a-dev" style="color:var(--yellow)">—</div></div>
+        <div class="asep"></div>
+        <div class="apill"><div class="ap-l">Recolectados</div><div class="ap-v" id="a-recol">—</div></div>
+        <div class="asep"></div>
+        <div class="apill"><div class="ap-l">Forwarder</div><div class="ap-v" style="font-size:15px">NEXUS</div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="dots"></div>
+
+<script>
+// ============================================================
+// DATOS REALES — exportados del CSV Dashboard
+// Estructura: [semaforo, supplier, reference, status, pickup, etd, atd, eta, ata, comments, desviacion]
+// ============================================================
+const SHIPS = [["red", "Napino", "CIE_KC_20250611_NAPINO", "Notificado", "16/dic", "10/ene", "13/ene", "1/abr", "", "El 12 de Dic apenas nos confirmaron carga lista (finales WK50)", "Congestión en puerto"], ["", "Napino", "CIE_KC_2603_NAPINO", "Notificado", "14/ene", "24/ene", "25/ene", "1/abr", "", "CIE nos dio luz verde para proceder con esta semana el 9 de Enero (finales de WK2)", ""], ["", "Changyang", "CIE-AV-2607-Nchangyang", "Notificado", "11/feb", "25/feb", "23/feb", "2/abr", "", "La carga esta lista el 10 de Feb,  van a tratar de alcanzar el zarpe del 11 de FEB ( con esperanza de que se retrase dicho zarpe) en caso contrario se embarcaría hasta regresando del Año Nuevo Chino", ""], ["yellow", "Napino", "CIE_KC_2605_NAPINO", "Tránsito", "26/feb", "18/mar", "18/mar", "29/abr", "", "Carga lista entre el 15 y el 18 de Febrero", "Carga no esta lista por parte de proveedor"], ["yellow", "Napino", "CIE_KC_2608_NAPINO", "Recolectado", "23/mar", "", "", "", "", "Carga lista 16 de Marzo (WK12)", "Carga no esta lista por parte de proveedor"], ["", "Zhenye", "CIE-ST-2609-ZHENYE_BL", "Notificado", "5/mar", "11/mar", "11/mar", "7/abr", "", "", ""], ["red", "Zhenye", "CIE-ST-2610-ZHENYE_BL", "Tránsito", "6/mar", "11/mar", "11/mar", "10/abr", "", "", "Se rolo"], ["yellow", "Zhenye", "CIE-ST-2610-ZHENYE", "Tránsito", "13/mar", "16/mar", "16/mar", "16/abr", "", "Carga lista en WK11", "Carga no esta lista por parte de proveedor"], ["", "Jiangsu Wenguang", "CIE-ST-2610-JIANGSU", "Notificado", "5/mar", "9/mar", "10/mar", "30/mar", "", "", ""], ["", "ZEXSA", "CIE-ST-2610-ZEXSA", "Notificado", "5/mar", "10/mar", "10/mar", "30/mar", "", "", ""], ["", "Ningbo Yumin", "CIE-ST-2610-YUMIN", "Notificado", "5/mar", "11/mar", "11/mar", "7/abr", "", "", ""], ["yellow", "Nidec", "CIE-ST-2610-NIDEC", "Tránsito", "7/mar", "15/mar", "15/mar", "12/abr", "", "Carga lista 2 de marzo", "Carga no esta lista por parte de proveedor"], ["", "SYP Kangqiao", "CIE-ST-2610-SYP", "Pendiente", "6/mar", "", "", "", "", "Aun no se recolectar por un tema con un delivery note", ""], ["", "SNT", "CIE_KC_2611_SNT", "Notificado", "17/mar", "23/mar", "23/mar", "8/abr", "", "", ""], ["", "BOJUN", "CIE-ST-2611-BOJUN", "Notificado", "12/mar", "14/mar", "14/mar", "31/mar", "", "", ""], ["yellow", "Zhenye", "CIE-ST-2611-ZHENYE", "Notificado", "16/mar", "20/mar", "20/mar", "10/abr", "", "Un cntr estará lista el 16 de marzo y otro el 24 de marzo", "Carga no esta lista por parte de proveedor"], ["yellow", "Zhenye", "CIE-ST-2611-ZHENYE_2", "Recolectado", "24/mar", "28/mar", "28/abr", "13/abr", "", "Un cntr estará lista el 16 de marzo y otro el 24 de marzo", "Carga no esta lista por parte de proveedor"], ["", "Jiangsu Wenguang", "CIE-ST-2611-JIANGSU", "Notificado", "16/mar", "24/mar", "25/mar", "10/abr", "", "", ""], ["", "Lear", "CIE_KC_2611_LEAR", "Tránsito", "16/mar", "20/mar", "20/mar", "13/abr", "", "", ""], ["yellow", "ZHONGNAN", "CIE-AV-2612-JLT", "Reservado", "26/mar", "31/mar", "30/mar", "", "", "", "Carga no esta lista por parte de proveedor"], ["yellow", "Zhenye", "CIE-ST-2612-ZHENYE", "Reservado", "27/mar", "", "", "", "", "Un cntr estará lista el 24 de marzo y otro el 28 de marzo (W13)", "Carga no esta lista por parte de proveedor"], ["", "Lear", "CIE_KC_2612_LEAR", "Recolectado", "19/mar", "", "", "", "", "", ""], ["", "Changyang", "CIE_KC_2612_NChangyang", "Notificado", "16/mar", "20/mar", "20/mar", "10/abr", "", "Se junto la WK10 con la WK12", ""], ["", "ZHONGNAN", "CIE-AV-2607-JLT-2", "Reservado", "27/mar", "31/mar", "30/mar", "", "", "", ""], ["", "SNT", "CIE_KC_2613_SNT", "Recolectado", "26/mar", "", "", "", "", "", ""], ["", "Ningbo Yumin", "CIE-ST-2613-YUMIN", "Reservado", "27/mar", "", "", "", "", "", ""], ["", "Rexlen", "TBC", "Reservado", "", "", "", "", "", "En espera de referencia", ""], ["", "Jiangsu Wenguang", "CIE-ST-2613-JIANGSU", "Recolectado", "25/mar", "31/mar", "31/mar", "", "", "", ""], ["", "ZHONGNAN", "CIE_KC_2614_JLT", "Reservado", "1/abr", "", "", "", "", "", ""], ["", "Changyang", "CIE_KC_2614_NChangyang", "Reservado", "", "", "", "", "", "", ""], ["", "Zhenye", "CIE-ST-2614-ZHENYE", "Reservado", "", "", "", "", "", "", ""], ["", "Jiangsu Wenguang", "CIE-ST-2615-JIANGSU", "Reservado", "9/abr", "", "", "", "", "", ""], ["", "BOJUN", "CIE-ST-2615-BOJUN", "Reservado", "10/abr", "", "", "", "", "", ""], ["", "Lear", "CIE_KC_2615_LEAR", "Reservado", "", "", "", "", "", "", ""], ["", "Zhenye", "CIE-ST-2615-ZHENYE", "Reservado", "10/abr", "", "", "", "", "", ""], ["", "Zhenye", "CIE-ST-2615-ZHENYE-LCL", "Reservado", "7/abr", "", "", "", "", "", ""], ["", "YCZ Electronic Technology", "CIE_KC_2615_YCZ", "Reservado", "7/abr", "", "", "", "", "", ""], ["", "HAIDA", "TBC", "Reservado", "30/mar", "", "", "", "", "", ""]];
+
+// ============================================================
+// HELPERS
+// ============================================================
+function pill(s){
+  if(!s)return'';
+  const l=s.toLowerCase().trim();
+  let c='p-no',lbl=s;
+  if(l.includes('tránsito')||l.includes('transit'))c='p-tr';
+  else if(l.includes('notificado'))c='p-no';
+  else if(l.includes('recolectado'))c='p-re';
+  else if(l.includes('cancelado'))c='p-ca';
+  else if(l.includes('pendiente'))c='p-pe';
+  else if(l.includes('reservado'))c='p-rv';
+  return`<span class="pill ${c}"><span class="pdot"></span>${lbl.trim()}</span>`;
+}
+function sem(v){
+  if(v==='red')return`<td class="sem"><span class="sdot s-red"></span></td>`;
+  if(v==='yellow')return`<td class="sem"><span class="sdot s-yel"></span></td>`;
+  return`<td class="sem"><span class="sdot s-none"></span></td>`;
+}
+function dt(v,hl=false){
+  if(!v||v==='nan'||v==='NaN')return`<td class="dt">—</td>`;
+  return`<td class="dt${hl?' hl':''}">${v}</td>`;
+}
+function devShort(v){
+  if(!v)return'—';
+  const map={'Carga no esta lista por parte de proveedor':'Carga no lista','Congestión en puerto':'Congestión puerto','Se rolo':'Se roló','Clima':'Clima','Pago pendiente de CIE a proveedor':'Pago pendiente'};
+  return map[v]||v;
+}
+
+// ============================================================
+// RENDER TABLA PRINCIPAL
+// ============================================================
+let curFilter = 'Todos';
+
+function renderTable(filter){
+  curFilter=filter;
+  const data = filter==='Todos' ? SHIPS : SHIPS.filter(r=>r[3].trim()===filter);
+  document.getElementById('tbl-title').textContent =
+    filter==='Todos'?'Todos los embarques':filter;
+  document.getElementById('tbl-badge').textContent = data.length+' registros';
+  document.getElementById('tbody').innerHTML = data.map(r=>`
+    <tr>
+      ${sem(r[0])}
+      <td>${r[1]}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mid)">${r[2]}</td>
+      <td>${pill(r[3])}</td>
+      ${dt(r[4])}${dt(r[5])}${dt(r[6])}${dt(r[7],true)}${dt(r[8])}
+      <td class="dev-cell" title="${r[10]}">${r[10]?devShort(r[10]):'—'}</td>
+      <td class="note" title="${r[9]}">${r[9]||'—'}</td>
+    </tr>`).join('');
+}
+
+function buildTabs(){
+  const statuses=['Todos','Tránsito','Notificado','Recolectado','Reservado','Pendiente'];
+  const counts={'Todos':SHIPS.length};
+  SHIPS.forEach(r=>{const s=r[3].trim();counts[s]=(counts[s]||0)+1});
+  document.getElementById('stabs').innerHTML=statuses.map(s=>{
+    const c=counts[s]||0;
+    return`<div class="stab${s==='Todos'?' on':''}" onclick="switchTab('${s}',this)">${s}${s!=='Todos'?` <span style="opacity:.6;font-size:10px">${c}</span>`:` <span style="opacity:.6;font-size:10px">${SHIPS.length}</span>`}</div>`;
+  }).join('');
+}
+
+function switchTab(s,el){
+  document.querySelectorAll('.stab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  renderTable(s);
+}
+
+// ============================================================
+// RENDER ETA TABLE
+// ============================================================
+function renderETA(){
+  const withETA = SHIPS.filter(r=>r[7]&&r[7]!=='nan'&&r[7]!=='NaN'&&r[7]!=='').slice(0,12);
+  document.getElementById('eta-tbody').innerHTML=withETA.map(r=>`
+    <tr>
+      ${sem(r[0])}
+      <td>${r[1]}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mid)">${r[2]}</td>
+      <td>${pill(r[3])}</td>
+      ${dt(r[5])}${dt(r[6])}${dt(r[7],true)}
+      <td class="dev-cell" title="${r[10]}">${r[10]?devShort(r[10]):'—'}</td>
+      <td class="note" title="${r[9]}">${r[9]||'—'}</td>
+    </tr>`).join('');
+}
+
+// ============================================================
+// RENDER KPIs
+// ============================================================
+function renderKPIs(){
+  const total=SHIPS.length;
+  const transit=SHIPS.filter(r=>r[3].toLowerCase().includes('tránsito')).length;
+  const notif=SHIPS.filter(r=>r[3].toLowerCase().includes('notificado')).length;
+  const recol=SHIPS.filter(r=>r[3].toLowerCase().includes('recolectado')).length;
+  const desv=SHIPS.filter(r=>r[0]==='red'||r[0]==='yellow').length;
+  const pct=v=>Math.round(v/total*100);
+  document.getElementById('kgrid').innerHTML=`
+    <div class="kcard">
+      <div class="klbl">Total activos</div>
+      <div class="kval">${total}</div>
+      <div class="knote">Embarques en seguimiento</div>
+      <div class="kbar"><div class="kbf" style="width:100%"></div></div>
+    </div>
+    <div class="kcard bl">
+      <div class="klbl">En tránsito</div>
+      <div class="kval" style="color:var(--blue)">${transit}</div>
+      <div class="knote">${pct(transit)}% del total</div>
+      <div class="kbar"><div class="kbf bl" style="width:${pct(transit)}%"></div></div>
+    </div>
+    <div class="kcard gr">
+      <div class="klbl">Notificados</div>
+      <div class="kval" style="color:var(--green)">${notif}</div>
+      <div class="knote">${pct(notif)}% del total</div>
+      <div class="kbar"><div class="kbf gr" style="width:${pct(notif)}%"></div></div>
+    </div>
+    <div class="kcard">
+      <div class="klbl">Recolectados</div>
+      <div class="kval">${recol}</div>
+      <div class="knote">${pct(recol)}% del total</div>
+      <div class="kbar"><div class="kbf" style="width:${pct(recol)}%"></div></div>
+    </div>
+    <div class="kcard ${desv>0?'yl':'gr'}">
+      <div class="klbl">Con desviación</div>
+      <div class="kval" style="color:${desv>0?'var(--yellow)':'var(--green)'}">${desv}</div>
+      <div class="knote">${desv>0?'Requieren atención':'Sin desviaciones'}</div>
+      <div class="kbar"><div class="kbf ${desv>0?'yl':'gr'}" style="width:${pct(desv)}%"></div></div>
+    </div>`;
+  // update announce
+  document.getElementById('a-total').textContent=total;
+  document.getElementById('a-transit').textContent=transit;
+  document.getElementById('a-dev').textContent=desv;
+  document.getElementById('a-recol').textContent=recol;
+  document.getElementById('a-desv').textContent=desv;
+}
+
+// ============================================================
+// RENDER COVER
+// ============================================================
+function renderCover(){
+  const total=SHIPS.length;
+  const transit=SHIPS.filter(r=>r[3].toLowerCase().includes('tránsito')).length;
+  const desv=SHIPS.filter(r=>r[0]==='red'||r[0]==='yellow').length;
+  const withETA=SHIPS.filter(r=>r[7]&&r[7]!=='nan'&&r[7]!=='').length;
+  document.getElementById('cvstats').innerHTML=`
+    <div class="cvs"><div class="cvs-v">${total}</div><div class="cvs-l">Embarques</div></div>
+    <div style="width:1px;height:48px;background:var(--bdr)"></div>
+    <div class="cvs"><div class="cvs-v" style="color:var(--blue)">${transit}</div><div class="cvs-l">En tránsito</div></div>
+    <div style="width:1px;height:48px;background:var(--bdr)"></div>
+    <div class="cvs"><div class="cvs-v" style="color:var(--yellow)">${desv}</div><div class="cvs-l">Alertas</div></div>
+    <div style="width:1px;height:48px;background:var(--bdr)"></div>
+    <div class="cvs"><div class="cvs-v" style="color:var(--green)">${withETA}</div><div class="cvs-l">Con ETA</div></div>`;
+}
+
+// ============================================================
+// GOOGLE SHEETS LIVE RELOAD
+// ============================================================
+// ✏️ Cuando publiques tu Sheet como CSV, pega la URL aquí:
+const SHEET_URL = null;
+// Ejemplo: 'https://docs.google.com/spreadsheets/d/TU_ID/pub?gid=TU_GID&single=true&output=csv'
+
+async function loadSheet(){
+  if(!SHEET_URL)return;
+  try{
+    const res=await fetch(SHEET_URL);
+    const csv=await res.text();
+    const rows=csv.trim().split('\n').map(r=>r.split(',').map(c=>c.trim().replace(/^"|"$/g,'')));
+    const active=['Notificado','Tránsito','Recolectado','Pendiente','Reservado','Reservado '];
+    const fresh=rows.slice(1).filter(r=>active.some(s=>r[3]&&r[3].trim().includes(s))).map(r=>{
+      const dev=(r[0]||'').trim();
+      let sem='';
+      if(dev.includes('Congestión')||dev.includes('rolo'))sem='red';
+      else if(dev)sem='yellow';
+      return[sem,r[1]||'',r[2]||'',r[3]||'',r[4]||'',r[5]||'',r[6]||'',r[7]||'',r[8]||'',r[9]||'',dev];
+    });
+    SHIPS.length=0;
+    fresh.forEach(r=>SHIPS.push(r));
+    renderAll();
+  }catch(e){console.warn('Sheet load failed:',e)}
+}
+
+function renderAll(){
+  renderKPIs();
+  renderCover();
+  buildTabs();
+  renderTable('Todos');
+  renderETA();
+}
+
+// ============================================================
+// SLIDE ENGINE
+// ============================================================
+const slides=document.querySelectorAll('.slide');
+const dotsEl=document.getElementById('dots');
+const progBar=document.getElementById('pb');
+let cur=0,timer=null,animF=null,progStart=null;
+const DUR=12000;
+
+slides.forEach((_,i)=>{
+  const d=document.createElement('div');
+  d.className='dot'+(i===0?' on':'');
+  d.onclick=()=>goTo(i);
+  dotsEl.appendChild(d);
+});
+
+function goTo(n){
+  slides[cur].classList.remove('active');
+  slides[cur].classList.add('exit');
+  setTimeout(()=>slides[cur].classList.remove('exit'),900);
+  cur=n;
+  slides[cur].classList.add('active');
+  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('on',i===cur));
+  resetProg();
+}
+function next(){goTo((cur+1)%slides.length)}
+function resetProg(){
+  clearInterval(timer);cancelAnimationFrame(animF);
+  progBar.style.width='0%';progStart=performance.now();
+  function tick(now){
+    const p=Math.min(((now-progStart)/DUR)*100,100);
+    progBar.style.width=p+'%';
+    if(now-progStart<DUR)animF=requestAnimationFrame(tick);
+  }
+  animF=requestAnimationFrame(tick);
+  timer=setInterval(next,DUR);
+}
+
+// ============================================================
+// CLOCK
+// ============================================================
+function tickClock(){
+  const n=new Date(),p=v=>String(v).padStart(2,'0');
+  document.getElementById('clk').textContent=p(n.getHours())+':'+p(n.getMinutes())+':'+p(n.getSeconds());
+  const dias=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  const mes=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  document.getElementById('dte').textContent=dias[n.getDay()]+' '+n.getDate()+' '+mes[n.getMonth()]+' '+n.getFullYear();
+}
+setInterval(tickClock,1000);tickClock();
+
+// ============================================================
+// INIT
+// ============================================================
+async function init(){
+  renderAll();
+  await loadSheet();
+  setTimeout(()=>{
+    document.getElementById('ldr').classList.add('out');
+    resetProg();
+  },2200);
+  setInterval(loadSheet,60*60*1000);
+}
+init();
+</script>
+</body>
+</html>
