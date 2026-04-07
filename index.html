@@ -326,6 +326,8 @@ tbody td:nth-child(2) { color:#F0F4FF; font-weight:600; font-size:14px; }
 .p-bk { background:rgba(167,139,250,0.12); color:#A78BFA; border:1px solid rgba(167,139,250,0.3); }
 .p-rv { background:rgba(167,139,250,0.12); color:#A78BFA; border:1px solid rgba(167,139,250,0.3); }
 .p-pe { background:rgba(255,140,0,0.12); color:#FF8C00; border:1px solid rgba(255,140,0,0.3); }
+.p-pu { background:rgba(20,210,180,0.12); color:#14D2B4; border:1px solid rgba(20,210,180,0.3); }
+.p-xx { background:rgba(148,163,184,0.10); color:#94A3B8; border:1px solid rgba(148,163,184,0.25); }
 .dt { font-family:'Courier New',monospace; font-size:12px; color:rgba(240,244,255,0.74); }
 .dt-hl { font-family:'Courier New',monospace; font-size:12px; color:#F5A623; font-weight:600; }
 .note-cell { font-size:11px; color:rgba(240,244,255,0.42); max-width:200px; overflow:hidden; white-space:nowrap; }
@@ -600,13 +602,14 @@ for (var i = 0; i < TOTAL; i++) {
 function pill(s) {
   if (!s) return '';
   var l = s.toLowerCase().trim();
-  if (l === 'transit') return '<span class="pill p-tr">Transit</span>';
-  if (l === 'booked')  return '<span class="pill p-bk">Booked</span>';
-  if (l.indexOf('notificado') >= 0)  return '<span class="pill p-no">' + s.trim() + '</span>';
-  if (l.indexOf('recolectado') >= 0) return '<span class="pill p-re">' + s.trim() + '</span>';
-  if (l.indexOf('reservado') >= 0)   return '<span class="pill p-rv">' + s.trim() + '</span>';
-  if (l.indexOf('tr') >= 0 && l.indexOf('nsito') >= 0) return '<span class="pill p-tr">' + s.trim() + '</span>';
-  return '<span class="pill p-pe">' + s.trim() + '</span>';
+  if (l === 'transit' || l === 'in transit' || l === 'transito' || l.indexOf('trnsito') >= 0 || (l.indexOf('tr') >= 0 && l.indexOf('nsito') >= 0)) return '<span class="pill p-tr">' + s.trim() + '</span>';
+  if (l === 'booked') return '<span class="pill p-bk">' + s.trim() + '</span>';
+  if (l.indexOf('pick up') >= 0 || l.indexOf('pickup') >= 0 || l.indexOf('recolect') >= 0) return '<span class="pill p-pu">' + s.trim() + '</span>';
+  if (l.indexOf('notificado') >= 0 || l === 'notified' || l.indexOf('notif') >= 0) return '<span class="pill p-no">' + s.trim() + '</span>';
+  if (l.indexOf('reservado') >= 0 || l.indexOf('reserv') >= 0) return '<span class="pill p-rv">' + s.trim() + '</span>';
+  if (l.indexOf('pendiente') >= 0 || l === 'pending') return '<span class="pill p-pe">' + s.trim() + '</span>';
+  if (l === '') return '';
+  return '<span class="pill p-xx">' + s.trim() + '</span>';
 }
 
 function sem(v) {
@@ -647,18 +650,32 @@ function renderRoute(ri) {
     var s = r.tabs[ti];
     var n = byS[s] || 0;
     var pct = t > 0 ? Math.round(n/t*100) : 0;
-    var vc = s === 'Notificado' ? '#FFB627' : s === 'Recolectado' ? '#00D68F' : s === 'Transit' ? '#3B8EFF' : r.color;
+    var vc = (function(st){
+      var sl=st.toLowerCase();
+      if(sl==='transit'||sl==='in transit'||sl.indexOf('tr')>=0&&sl.indexOf('nsito')>=0) return '#3B8EFF';
+      if(sl.indexOf('notif')>=0) return '#FFB627';
+      if(sl.indexOf('recolect')>=0||sl.indexOf('pick up')>=0||sl.indexOf('pickup')>=0) return '#14D2B4';
+      if(sl.indexOf('reserv')>=0||sl==='booked') return '#A78BFA';
+      if(sl.indexOf('pendiente')>=0||sl==='pending') return '#FF8C00';
+      return r.color;
+    })(s);
     khtml += '<td class="kcard"><div class="klbl">' + s + '</div><div class="kval" style="color:' + vc + '">' + n + '</div><div class="knote">' + pct + '% del total</div><div class="kbar-track"><div class="kbar-fill" style="width:' + pct + '%;background:' + vc + '"></div></div></td>';
   }
   document.getElementById('kgrid' + ri).innerHTML = khtml;
 
-  // Tabs
+  // Tabs — generados dinámicamente desde los datos reales del Sheet
   var c = {'Todos': t};
+  var seenTabs = {}; var dynTabs = [];
   for (var i = 0; i < ships.length; i++) {
     var k = ships[i][3].trim();
     c[k] = (c[k] || 0) + 1;
+    if (k && !seenTabs[k]) { seenTabs[k] = true; dynTabs.push(k); }
   }
-  var tabs_all = ['Todos'].concat(r.tabs);
+  // Orden: primero los preferidos (r.tabs), luego cualquier nuevo del Sheet
+  var ordered = [];
+  for (var pi = 0; pi < r.tabs.length; pi++) { if (seenTabs[r.tabs[pi]]) ordered.push(r.tabs[pi]); }
+  for (var di = 0; di < dynTabs.length; di++) { if (ordered.indexOf(dynTabs[di]) < 0) ordered.push(dynTabs[di]); }
+  var tabs_all = ['Todos'].concat(ordered);
   var tabhtml = '';
   for (var ti = 0; ti < tabs_all.length; ti++) {
     var s = tabs_all[ti];
@@ -813,8 +830,9 @@ function loadRoute(ri) {
     var fresh = [];
     for (var i = 0; i < lines.length; i++) {
       var cols = lines[i].split(',').map(function(c){ return c.trim().replace(/^"|"$/g,''); });
-      var status = (r.structure === 'auh') ? cols[2] : cols[3];
-      if (r.tabs.indexOf(status) >= 0) {
+      // Aceptar cualquier fila con datos, sin filtrar por estatus fijo
+      var hasData = (r.structure === 'auh') ? (cols[0]||cols[1]||cols[2]||'').trim() !== '' : (cols[1]||cols[2]||cols[3]||'').trim() !== '';
+      if (hasData) {
         if (r.structure === 'auh') {
           fresh.push(['', cols[0]||'', cols[1]||'', cols[2]||'', cols[3]||'', cols[4]||'', cols[5]||'', cols[6]||'', cols[7]||'', cols[8]||'', cols[9]||'']);
         } else {

@@ -72,6 +72,8 @@ html,body{min-height:100%;background:var(--bg);color:var(--txt);font-family:-app
 .p-bk{background:rgba(167,139,250,.12);color:var(--purple);border:1px solid rgba(167,139,250,.3);}
 .p-rv{background:rgba(167,139,250,.12);color:var(--purple);border:1px solid rgba(167,139,250,.3);}
 .p-pe{background:rgba(255,140,0,.12);color:#FF8C00;border:1px solid rgba(255,140,0,.3);}
+.p-pu{background:rgba(20,210,180,.12);color:#14D2B4;border:1px solid rgba(20,210,180,.3);}
+.p-xx{background:rgba(148,163,184,.10);color:#94A3B8;border:1px solid rgba(148,163,184,.25);}
 
 .empty{text-align:center;padding:48px 24px;color:var(--dim);font-size:14px;}
 .empty span{display:block;font-size:32px;margin-bottom:12px;}
@@ -118,22 +120,29 @@ let activeTab = 'Todos';
 let searchQ   = '';
 
 function pill(s){
-  if(!s)return'';const l=s.toLowerCase().trim();
-  if(l==='transit')return'<span class="pill p-tr"><span class="pdot"></span>Transit</span>';
-  if(l==='booked')return'<span class="pill p-bk"><span class="pdot"></span>Booked</span>';
-  if(l.includes('notificado'))return`<span class="pill p-no"><span class="pdot"></span>${s.trim()}</span>`;
-  if(l.includes('recolectado'))return`<span class="pill p-re"><span class="pdot"></span>${s.trim()}</span>`;
-  if(l.includes('reservado'))return`<span class="pill p-rv"><span class="pdot"></span>${s.trim()}</span>`;
-  if(l.includes('tránsito'))return`<span class="pill p-tr"><span class="pdot"></span>${s.trim()}</span>`;
-  return`<span class="pill p-pe"><span class="pdot"></span>${s.trim()}</span>`;
+  if(!s)return'';var l=s.toLowerCase().trim();
+  if(l==='transit'||l==='in transit'||l==='tránsito'||l==='transito')return'<span class="pill p-tr"><span class="pdot"></span>'+s.trim()+'</span>';
+  if(l==='booked'||l==='reservado'||l.includes('reserv'))return'<span class="pill p-bk"><span class="pdot"></span>'+s.trim()+'</span>';
+  if(l.includes('pick up')||l.includes('pickup')||l==='recolectado'||l.includes('recolect'))return'<span class="pill p-pu"><span class="pdot"></span>'+s.trim()+'</span>';
+  if(l.includes('notificado')||l==='notified'||l.includes('notif'))return'<span class="pill p-no"><span class="pdot"></span>'+s.trim()+'</span>';
+  if(l.includes('pendiente')||l==='pending')return'<span class="pill p-pe"><span class="pdot"></span>'+s.trim()+'</span>';
+  if(l==='')return'';
+  return'<span class="pill p-xx"><span class="pdot"></span>'+s.trim()+'</span>';
 }
 
 function buildTabs(){
-  const c={'Todos':SHIPS.length};
-  SHIPS.forEach(s=>{const k=s[3].trim();c[k]=(c[k]||0)+1});
-  document.getElementById('tabs').innerHTML=['Todos',...TABS].map(t=>
-    `<div class="tab${t===activeTab?' on':''}" onclick="setTab('${t}')">${t} ${c[t]||0}</div>`
-  ).join('');
+  // Generar tabs dinámicamente desde los datos reales
+  var seen={};var dynTabs=[];
+  SHIPS.forEach(function(s){var k=(s[3]||'').trim();if(k&&!seen[k]){seen[k]=true;dynTabs.push(k);}});
+  // Mantener el orden de TABS (preferidos al inicio), luego agregar los nuevos
+  var ordered=[];
+  TABS.forEach(function(t){if(seen[t]){ordered.push(t);}});
+  dynTabs.forEach(function(t){if(ordered.indexOf(t)<0){ordered.push(t);}});
+  var c={'Todos':SHIPS.length};
+  SHIPS.forEach(function(s){var k=(s[3]||'').trim();c[k]=(c[k]||0)+1;});
+  document.getElementById('tabs').innerHTML=['Todos'].concat(ordered).map(function(t){
+    return'<div class="tab'+(t===activeTab?' on':'')+'" onclick="setTab(''+t+'')">'+t+' '+(c[t]||0)+'</div>';
+  }).join('');
 }
 
 function buildStats(){
@@ -199,7 +208,7 @@ async function loadSheet(){
     const active=TABS;
     let fresh=[];
     if(STRUCTURE==='auh'){
-      fresh=rows.filter(r=>active.includes((r[2]||'').trim()))
+      fresh=rows.filter(r=>(r[0]||r[1]||r[2]||'').trim()!=='')
         .map(r=>['',r[0]||'',r[1]||'',r[2]||'',r[3]||'',r[4]||'',r[5]||'',r[6]||'',r[7]||'',r[8]||'',r[9]||'']);
     }else{
       fresh=rows.filter(r=>active.includes((r[3]||'').trim()))
