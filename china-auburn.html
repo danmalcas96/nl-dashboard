@@ -70,11 +70,6 @@ tbody td:nth-child(2){color:var(--txt);font-weight:600;font-size:16px}
 .p-no{background:rgba(255,182,39,.12);color:var(--yellow);border:1px solid rgba(255,182,39,.3)}
 .p-re{background:rgba(0,214,143,.12);color:var(--green);border:1px solid rgba(0,214,143,.3)}
 .p-rv{background:rgba(167,139,250,.12);color:var(--purple);border:1px solid rgba(167,139,250,.3)}
-.p-pe{background:rgba(255,140,0,.12);color:#FF8C00;border:1px solid rgba(255,140,0,.3)}
-.p-pu{background:rgba(20,210,180,.12);color:#14D2B4;border:1px solid rgba(20,210,180,.3)}
-.p-xx{background:rgba(148,163,184,.10);color:#94A3B8;border:1px solid rgba(148,163,184,.25)}
-.p-re{background:rgba(0,214,143,.12);color:var(--green);border:1px solid rgba(0,214,143,.3)}
-.p-rv{background:rgba(167,139,250,.12);color:var(--purple);border:1px solid rgba(167,139,250,.3)}
 .dt{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--mid)}.dt.hl{color:var(--ac);font-weight:600}
 .note{font-size:13px;color:var(--dim);max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .xtra{font-size:12px;color:var(--dim);max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -179,14 +174,12 @@ const SHIPS=[["", "Ningbo", "N204", "Transit", "5      05-feb", "10/feb", "20/fe
 const TABS=["Transit", "Booked"];
 const CSV_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSqp25yo6GY6aIehJn8lM-l1R0SiHd9BpAb0tAhusZnktgSwlwc4EDFsSw1FD1qGxuN1f_JXh8otYMu/pub?gid=1577835519&single=true&output=csv';
 function pill(s){if(!s)return'';const l=s.toLowerCase().trim();
-  if(l==='transit'||l==='in transit'||l==='transito'||(l.indexOf('tr')>=0&&l.indexOf('nsito')>=0))return`<span class="pill p-tr"><span class="pdot"></span>${s.trim()}</span>`;
-  if(l==='booked')return`<span class="pill p-bk"><span class="pdot"></span>${s.trim()}</span>`;
-  if(l.includes('pick up')||l.includes('pickup')||l.includes('recolect'))return`<span class="pill p-pu"><span class="pdot"></span>${s.trim()}</span>`;
-  if(l.includes('notificado')||l==='notified'||l.includes('notif'))return`<span class="pill p-no"><span class="pdot"></span>${s.trim()}</span>`;
-  if(l.includes('reservado')||l.includes('reserv'))return`<span class="pill p-rv"><span class="pdot"></span>${s.trim()}</span>`;
-  if(l.includes('pendiente')||l==='pending')return`<span class="pill p-pe"><span class="pdot"></span>${s.trim()}</span>`;
-  if(l==='')return'';
-  return`<span class="pill p-xx"><span class="pdot"></span>${s.trim()}</span>`;}
+  if(l==='transit')return'<span class="pill p-tr"><span class="pdot"></span>Transit</span>';
+  if(l==='booked')return'<span class="pill p-bk"><span class="pdot"></span>Booked</span>';
+  if(l.includes('notificado'))return`<span class="pill p-no"><span class="pdot"></span>${s.trim()}</span>`;
+  if(l.includes('recolectado'))return`<span class="pill p-re"><span class="pdot"></span>${s.trim()}</span>`;
+  if(l.includes('reservado'))return`<span class="pill p-rv"><span class="pdot"></span>${s.trim()}</span>`;
+  return`<span class="pill p-no"><span class="pdot"></span>${s.trim()}</span>`;}
 function sem(v){return v?'<td class="sem"><span class="sdot s-yel"></span></td>':'<td class="sem"><span class="sdot s-none"></span></td>';}
 function dt(v,hl){return(!v||v==='nan'||v==='NaN')?'<td class="dt">—</td>':`<td class="dt${hl?' hl':''} ">${v}</td>`;}
 function renderTable(f){
@@ -197,13 +190,7 @@ function renderTable(f){
 }
 function buildTabs(){
   const c={'Todos':SHIPS.length};SHIPS.forEach(r=>{const s=r[3].trim();c[s]=(c[s]||0)+1});
-  // Tabs dinámicos: orden preferido de TABS + cualquier estatus nuevo del Sheet
-  const seenT={};const dynT=[];
-  SHIPS.forEach(r=>{const k=(r[3]||'').trim();if(k&&!seenT[k]){seenT[k]=true;dynT.push(k);}});
-  const ordT=[];
-  TABS.forEach(t=>{if(seenT[t])ordT.push(t);});
-  dynT.forEach(t=>{if(ordT.indexOf(t)<0)ordT.push(t);});
-  document.getElementById('stabs').innerHTML=['Todos',...ordT].map(s=>`<div class="stab${s==='Todos'?' on':''}" onclick="switchTab('${s}',this)">${s} <span style="opacity:.6;font-size:11px">${c[s]||0}</span></div>`).join('');
+  document.getElementById('stabs').innerHTML=['Todos',...TABS].map(s=>`<div class="stab${s==='Todos'?' on':''}" onclick="switchTab('${s}',this)">${s} <span style="opacity:.6;font-size:11px">${c[s]||0}</span></div>`).join('');
 }
 function switchTab(s,el){document.querySelectorAll('.stab').forEach(t=>t.classList.remove('on'));el.classList.add('on');renderTable(s);}
 function renderETA(){
@@ -216,19 +203,7 @@ function renderKPIs(){
   const dv=SHIPS.filter(r=>r[0]!=='').length;
   const clrs={'Notificado':'yl','Recolectado':'gr','Transit':'bl','Booked':''};
   const vcl={'Notificado':'var(--yellow)','Recolectado':'var(--green)','Transit':'var(--blue)'};
-  // KPI cards para todos los tabs activos (dinámico)
-  const seenKPI={};const dynKPI=[];
-  SHIPS.forEach(r=>{const k=(r[3]||'').trim();if(k&&!seenKPI[k]){seenKPI[k]=true;dynKPI.push(k);}});
-  const ordKPI=[];TABS.forEach(t=>{if(seenKPI[t])ordKPI.push(t);});
-  dynKPI.forEach(t=>{if(ordKPI.indexOf(t)<0)ordKPI.push(t);});
-  function kpiColor(st){const sl=st.toLowerCase();
-    if(sl==='transit'||sl==='in transit'||(sl.indexOf('tr')>=0&&sl.indexOf('nsito')>=0))return'var(--blue)';
-    if(sl.includes('pick up')||sl.includes('pickup')||sl.includes('recolect'))return'#14D2B4';
-    if(sl.includes('notif'))return'var(--yellow)';
-    if(sl.includes('reserv')||sl==='booked')return'var(--purple)';
-    if(sl.includes('pendiente')||sl==='pending')return'#FF8C00';
-    return'var(--ac)';}
-  const cards=ordKPI.map(s=>`<div class="kcard"><div class="klbl">${s}</div><div class="kval" style="color:${kpiColor(s)}">${by[s]||0}</div><div class="knote">${p(by[s]||0)}% del total</div><div class="kbar"><div class="kbf" style="width:${p(by[s]||0)}%;background:${kpiColor(s)}"></div></div></div>`).join('');
+  const cards=TABS.map(s=>`<div class="kcard ${clrs[s]||''}"><div class="klbl">${s}</div><div class="kval" style="color:${vcl[s]||'var(--txt)'}">${by[s]||0}</div><div class="knote">${p(by[s]||0)}% del total</div><div class="kbar"><div class="kbf ${clrs[s]||''}" style="width:${p(by[s]||0)}%"></div></div></div>`).join('');
   document.getElementById('kgrid').innerHTML=`<div class="kcard"><div class="klbl">Total activos</div><div class="kval">${t}</div><div class="knote">Embarques en seguimiento</div><div class="kbar"><div class="kbf" style="width:100%"></div></div></div>`+cards;
 }
 function renderCover(){
@@ -238,9 +213,9 @@ function renderCover(){
   document.getElementById('cvstats').innerHTML=`
     <div class="cvs"><div class="cvs-v">${t}</div><div class="cvs-l">Total</div></div>
     <div style="width:1px;height:52px;background:var(--bdr)"></div>
-    <div class="cvs"><div class="cvs-v" style="color:var(--blue)">${by[ordKPI[0]]||0}</div><div class="cvs-l">${ordKPI[0]||''}</div></div>
+    <div class="cvs"><div class="cvs-v" style="color:var(--blue)">${by[TABS[0]]||0}</div><div class="cvs-l">${TABS[0]}</div></div>
     <div style="width:1px;height:52px;background:var(--bdr)"></div>
-    <div class="cvs"><div class="cvs-v" style="color:var(--green)">${by[ordKPI[1]]||0}</div><div class="cvs-l">${ordKPI[1]||''}</div></div>
+    <div class="cvs"><div class="cvs-v" style="color:var(--green)">${by[TABS[1]]||by[TABS[2]]||0}</div><div class="cvs-l">${TABS[1]||TABS[2]||''}</div></div>
     <div style="width:1px;height:52px;background:var(--bdr)"></div>
     <div class="cvs"><div class="cvs-v" style="color:var(--yellow)">${dv}</div><div class="cvs-l">Alertas</div></div>`;
 }
@@ -253,17 +228,6 @@ function next(){goTo((cur+1)%slides.length)}
 function resetProg(){clearInterval(timer);cancelAnimationFrame(animF);progBar.style.width='0%';progStart=performance.now();function tick(now){const p=Math.min(((now-progStart)/DUR)*100,100);progBar.style.width=p+'%';if(now-progStart<DUR)animF=requestAnimationFrame(tick);}animF=requestAnimationFrame(tick);timer=setInterval(next,DUR);}
 function tickClock(){const n=new Date(),p=v=>String(v).padStart(2,'0');document.getElementById('clk').textContent=p(n.getHours())+':'+p(n.getMinutes())+':'+p(n.getSeconds());const dias=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'],mes=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];document.getElementById('dte').textContent=dias[n.getDay()]+' '+n.getDate()+' '+mes[n.getMonth()]+' '+n.getFullYear();}
 setInterval(tickClock,1000);tickClock();
-async function loadSheet(){
-  if(!CSV_URL)return;
-  try{
-    const res=await fetch(CSV_URL);
-    const csv=await res.text();
-    const rows=csv.trim().split('\n').map(r=>r.split(',').map(c=>c.trim().replace(/^"|"$/g,'')));
-    const fresh=rows.filter(r=>(r[0]||r[1]||r[2]||'').trim()!=='')
-      .map(r=>['',r[0]||'',r[1]||'',r[2]||'',r[3]||'',r[4]||'',r[5]||'',r[6]||'',r[7]||'',r[8]||'',r[9]||'']);
-    if(fresh.length>0){SHIPS.length=0;fresh.forEach(r=>SHIPS.push(r));renderAll();}
-  }catch(e){console.warn('loadSheet error:',e);}
-}
 async function init(){renderAll();await loadSheet();setInterval(loadSheet,60*60*1000);setTimeout(()=>{document.getElementById('ldr').classList.add('out');resetProg();},2200);}
 init();
 </script></body></html>
